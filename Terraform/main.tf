@@ -11,3 +11,12 @@ resource "aws_dynamodb_table" "my_table"{
       Project = "StaticWebsiteHosting"
     }
 }
+
+resource "aws_s3_bucket" "resume_site" {
+  bucket = "alfiyajaved.in"
+
+  tags = {
+    Project = "StaticWebsiteHosting"
+  }
+  
+}
