@@ -105,3 +105,48 @@ resource "aws_lambda_function" "lambda_visitor_count" {
   source_code_hash = data.archive_file.lambda_zip.output_sha256
  
 }
+
+resource "aws_apigatewayv2_api" "visitor_api" {
+  name = "ResumeCounterAPI"
+  protocol_type = "HTTP"
+
+  cors_configuration {
+    allow_origins = ["https://alfiyajaved.in"]
+    allow_methods = ["GET"]
+    allow_credentials = false
+  }
+  
+}
+
+resource "aws_apigatewayv2_integration" "lambda_integration" {
+  api_id = aws_apigatewayv2_api.visitor_api.id
+  integration_type = "AWS_PROXY"
+  integration_uri = aws_lambda_function.lambda_visitor_count.invoke_arn
+  integration_method = "POST"
+  payload_format_version = "2.0"
+  
+}
+
+resource "aws_apigatewayv2_route" "visitor_route" {
+  api_id = aws_apigatewayv2_api.visitor_api.id
+  route_key = "GET /count"
+  target = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}"
+
+  
+}
+
+resource "aws_apigatewayv2_stage" "default" {
+  api_id = aws_apigatewayv2_api.visitor_api.id
+  name = "$default"
+  auto_deploy = true
+  
+}
+
+resource "aws_lambda_permission" "api_gw_invoke" {
+  statement_id = "920bc905-0418-5827-8219-767b32a2ecc3"
+  action = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.lambda_visitor_count.function_name
+  principal = "apigateway.amazonaws.com"
+  source_arn = "${aws_apigatewayv2_api.visitor_api.execution_arn}/*/*/count"
+  
+}
