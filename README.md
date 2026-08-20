@@ -16,7 +16,7 @@ I document the real bugs and decisions behind this project on my blog: [alfiyaja
 
 ## Architecture
  
-![Architecture Diagram](./assets/architecture-diagram.svg)
+![Architecture Diagram](./assets/architecture-diagram.png)
  
 The project has two separate paths.
  
