@@ -1,13 +1,18 @@
-# Serverless Cloud Portfolio — AWS Cloud Resume Challenge
-
+# Cloud Resume Challenge — Serverless Portfolio on AWS
+ 
+A personal portfolio website built entirely on AWS managed and serverless services. This project is part of the Cloud Resume Challenge. It includes a live backend feature (a visitor counter), infrastructure managed as code with Terraform, and automated unit tests.
+ 
 **Live site:** [alfiyajaved.in](https://alfiyajaved.in)
-**Status:** In Progress — actively extending with Terraform (IaC) and GitHub Actions (CI/CD)
 
-A fully serverless personal portfolio built to avoid traditional server management, integrating 4+ AWS managed services for scalable frontend and backend hosting.
-
-## What This Solves
-
-A reliable, low-maintenance personal portfolio — architected entirely serverless on AWS instead of relying on a traditional always-on server.
+---
+ 
+## About This Project
+ 
+I built this to learn AWS by deploying something real, not just following theory. It started as a static portfolio site and grew to include a serverless backend, infrastructure as code, and automated testing. I am currently finishing the last parts of the infrastructure in Terraform and building a CI/CD pipeline next.
+ 
+I document the real bugs and decisions behind this project on my blog: [alfiyajaved.hashnode.dev](https://alfiyajaved.hashnode.dev)
+ 
+---
 
 ## Architecture
 
