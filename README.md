@@ -15,38 +15,49 @@ I document the real bugs and decisions behind this project on my blog: [alfiyaja
 ---
 
 ## Architecture
+ 
+![Architecture Diagram](./architecture-diagram.svg)
+ 
+The project has two separate paths.
+ 
+**Frontend path** — delivers the static site.
+`User → Route 53 → CloudFront → S3`
+ 
+**Backend path** — powers the visitor counter.
+`Browser (JavaScript) → API Gateway → Lambda → DynamoDB`
+ 
+The S3 bucket is private. It can only be reached through CloudFront, using Origin Access Control (OAC). The bucket cannot be accessed directly from the internet.
+ 
+ ---
 
-**Frontend path (load website):**
-```
-User types alfiyajaved.in
-→ Route 53 resolves domain
-→ returns CloudFront address
-→ Browser connects to CloudFront
-→ CloudFront checks cache: hit? serve it. miss? fetch from S3
-→ HTML/CSS/JS delivered to browser
-```
 
-**Backend path (visitor count):**
-```
-JavaScript in the browser calls API Gateway endpoint
-→ API Gateway receives the HTTP request
-→ API Gateway invokes the Lambda function
-→ Lambda runs Python code, calls DynamoDB via boto3
-→ DynamoDB increments counter, returns new value
-→ Lambda returns value → API Gateway → JavaScript → displayed on page
-```
+## Tech Stack
+ 
+| Layer | Service | Purpose |
+|---|---|---|
+| Hosting | S3 | Stores the static site files (HTML, CSS, JS) |
+| CDN | CloudFront | Delivers the site with caching and HTTPS |
+| DNS | Route 53 | Points the domain to CloudFront |
+| SSL/TLS | ACM | Provides the HTTPS certificate |
+| API | API Gateway (HTTP API) | Exposes the visitor counter endpoint |
+| Compute | Lambda (Python 3.14) | Runs the visitor counter logic |
+| Database | DynamoDB | Stores the visitor count (on-demand billing) |
+| Infrastructure as Code | Terraform | Manages AWS resources as code |
+| Testing | pytest, unittest.mock | Tests the Lambda function without touching real AWS resources |
 
-| Layer | Service |
-|---|---|
-| Frontend hosting | S3 (static website hosting) |
-| CDN & DNS | CloudFront + Route 53 |
-| HTTPS | AWS Certificate Manager (ACM) |
-| API | API Gateway |
-| Compute | AWS Lambda (Python + boto3) |
-| Database | DynamoDB |
-| IaC (in progress) | Terraform |
+See [`MANUAL_ARCHITECTURE.md`](./MANUAL_ARCHITECTURE.md) for the full manual build notes.
+ 
+---
 
-See [`MANUAL_ARCHITECTURE.md`](./MANUAL_ARCHITECTURE.md) for the full manual build notes and IAM policy details.
+
+## API Reference
+ 
+| Method | Endpoint | Description | Response |
+|---|---|---|---|
+| GET | `/count` | Increments and returns the current visitor count | `{ "visitor_count": <number> }` |
+ 
+---
+
 
 ## Highlights
 
