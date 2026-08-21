@@ -150,3 +150,40 @@ resource "aws_lambda_permission" "api_gw_invoke" {
   source_arn = "${aws_apigatewayv2_api.visitor_api.execution_arn}/*/*/count"
   
 }
+
+resource "aws_route53_zone" "main" {
+  name = "alfiyajaved.in"
+  
+}
+
+resource "aws_route53_record" "root_alias" {
+  zone_id = aws_route53_zone.main.zone_id
+  name = "alfiyajaved.in"
+  type = "A"
+
+  alias {
+    name = "d1yceq88f9ew74.cloudfront.net"
+    zone_id = "Z2FDTNDATAQYW2"
+    evaluate_target_health = false
+  }
+  
+}
+
+resource "aws_acm_certificate" "cert" {
+  provider = aws.us_east_1
+  domain_name = "alfiyajaved.in"
+  validation_method = "DNS"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+  
+}
+
+resource "aws_cloudfront_origin_access_control" "resume_site_oac" {
+  name = "alfiyajaved.in.s3.us-east-2.amazonaws.com"
+  origin_access_control_origin_type = "s3"
+  signing_behavior = "always"
+  signing_protocol = "sigv4"
+  
+}
