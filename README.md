@@ -316,7 +316,7 @@ I am keeping this section honest and updated as the project progresses, instead 
 
 *(Passing test output)*
 
-![AWSDynamoDBTable Image](./assets/aws-dyanmodb-table.png) 
+![AWSDynamoDBTable Image](./assets/aws-dynamodb-table.png) 
 
 *(The DynamoDB table in AWS Console.)*
  
