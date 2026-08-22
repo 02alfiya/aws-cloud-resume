@@ -157,7 +157,7 @@ aws route53 create-hosted-zone --name yourdomain.com --caller-reference $(date +
  
 This returns four nameserver (NS) values. Copy them.
 
-![Route53HostedZone Image](./assets/route53-hosted-zone-.png) 
+![Route53HostedZone Image](./assets/route53-hosted-zone-ns.png) 
 
 *(Route 53 hosted zone page, showing the four NS records.)*
  
@@ -166,7 +166,7 @@ This returns four nameserver (NS) values. Copy them.
 Log in to your domain registrar. Go to the domain's DNS or nameserver settings, and replace the registrar's default nameservers with the four Route 53 gave you in step 1. This is called nameserver delegation — it tells the internet that Route 53, not your registrar, now controls this domain's DNS. In GoDaddy specifically, this is under **My Products → DNS → Nameservers → Change → Enter custom nameservers**.
  
  ![GoDaddySettings Image](./assets/godaddy-ns-settings.png)
- 
+
 *(GoDaddy nameserver settings panel, showing where to paste the custom nameservers.)*
  
 ### 3. Wait for Propagation
