@@ -281,29 +281,57 @@ This project runs at under $1 per month. It uses AWS's free-tier and pay-per-use
 ---
 
 
-## Highlights
+## Current Status
+ 
+This project is a work in progress. Here is what is actually done, and what is still coming.
+ 
+**Done and managed with Terraform:**
+- DynamoDB table
+- S3 bucket, bucket policy, and public access settings
+- IAM role and permissions for Lambda
+- Lambda function
+- API Gateway (API, integration, route, and stage)
+- CloudFront distribution
+- ACM certificate
+- Route 53 records
 
-- Integrated **4+ managed AWS services** (S3, CloudFront, Route 53, ACM, API Gateway, Lambda, DynamoDB) for a fully serverless, scalable setup — no servers to patch or manage.
-- Built a **Python Lambda function** integrated with API Gateway and DynamoDB to deliver a real-time visitor counter — hands-on serverless, event-driven design.
-- Configured **custom domain routing and HTTPS** via Route 53 and ACM; troubleshot DNS/SSL/TLS issues by isolating browser-level caching from infrastructure-layer problems, improving deployment reliability.
-- **Under $1/month operating cost** by strategically selecting AWS free-tier services throughout.
-- Currently **importing manually-created AWS resources into Terraform-managed state** — converting a console-first build into Infrastructure as Code.
-- **GitHub Actions CI/CD** planned next.
+**Planned next:**
+- Add a CI/CD pipeline with GitHub Actions to deploy code changes automatically
+- Reduce IAM permissions to follow least privilege more closely — the Lambda role currently has broader DynamoDB access than it needs
+I am keeping this section honest and updated as the project progresses, instead of only showing the finished parts.
+ 
+---
+ 
+## Screenshots
 
-## Repo Structure
+![LiveSite Image](./assets/live-site.png) 
 
-```
-├── Backend/       → Lambda function code (Python)
-├── Frontend/       → Static site (HTML/CSS/JS)
-├── Terraform/      → IaC — importing existing manual resources
-├── .github/        → CI/CD workflows (in progress)
-└── MANUAL_ARCHITECTURE.md → Full manual-build documentation + IAM policy
-```
+*(Live site with visitor count visible.)*
 
+![TerraformPlan Image](./assets/terraform-output.png) 
+
+*(A clean `terraform plan` showing "No changes.")*
+
+![TestOutput Image](./assets/test-output.png) 
+
+*(Passing test output)*
+
+![AWSDynamoDBTable Image](./assets/aws-dyanmodb-table.png) 
+
+*(The DynamoDB table in AWS Console.)*
+ 
+
+ 
+---
+ 
 ## Build Log
-
-I'm documenting the full build process — including the manual-to-IaC migration — on [Hashnode](#).
-
-## Tech Stack
-
-AWS (S3, CloudFront, Route 53, ACM, API Gateway, Lambda, DynamoDB) · Python · Boto3 · Terraform · GitHub Actions
+ 
+I documented the real bugs, debugging steps, and decisions behind this project as I built it: [alfiyajaved.hashnode.dev](https://alfiyajaved.hashnode.dev)
+ 
+---
+ 
+## Author
+ 
+**Alfiya Javed**
+[LinkedIn](https://linkedin.com/in/alfiya-javed-5326a1235/) · [GitHub](https://github.com/02alfiya/) · [Portfolio](https://alfiyajaved.in)
+ 
