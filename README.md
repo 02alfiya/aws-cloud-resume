@@ -306,7 +306,7 @@ I am keeping this section honest and updated as the project progresses, instead 
 
 *(Live site with visitor count visible.)*
 
-![TerraformPlan Image](./assets/terraform-.png) 
+![TerraformPlan Image](./assets/terraform-output.png) 
 
 *(A clean `terraform plan` showing "No changes.")*
 
