@@ -282,22 +282,20 @@ This project runs at under $1 per month. It uses AWS's free-tier and pay-per-use
 
 
 ## Current Status
- 
-This project is a work in progress. Here is what is actually done, and what is still coming.
- 
-**Done and managed with Terraform:**
+
+All infrastructure for this project is managed with Terraform:
 - DynamoDB table
-- S3 bucket, bucket policy, and public access settings
-- IAM role and permissions for Lambda
+- S3 bucket, bucket policy, and public access block (fully restricted)
+- IAM role with a scoped policy (UpdateItem only, no broader access)
 - Lambda function
 - API Gateway (API, integration, route, and stage)
-- CloudFront distribution
+- Route 53 hosted zone and DNS record
 - ACM certificate
-- Route 53 records
+- CloudFront distribution 
 
 **Planned next:**
-- Add a CI/CD pipeline with GitHub Actions to deploy code changes automatically
-- Reduce IAM permissions to follow least privilege more closely — the Lambda role currently has broader DynamoDB access than it needs
+- CI/CD pipeline with GitHub Actions, to deploy code changes automatically
+
 I am keeping this section honest and updated as the project progresses, instead of only showing the finished parts.
  
 ---
@@ -308,7 +306,7 @@ I am keeping this section honest and updated as the project progresses, instead 
 
 *(Live site with visitor count visible.)*
 
-![TerraformPlan Image](./assets/terraform-output.png) 
+![TerraformPlan Image](./assets/terraform-.png) 
 
 *(A clean `terraform plan` showing "No changes.")*
 
