@@ -29,8 +29,6 @@ def lambda_handler(event, context):
     # 4. Return the data to API Gateway (and eventually your JavaScript)
     return {
         'statusCode': 200,
-        'headers': {
-            'Access-Control-Allow-Origin': '*' # Crucial! This allows your web browser to accept the data
-        },
+ 
         'body': json.dumps({'visitor_count': new_count})
     }
