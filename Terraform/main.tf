@@ -24,10 +24,10 @@ resource "aws_s3_bucket" "resume_site" {
 resource "aws_s3_bucket_public_access_block" "resume_site" {
   bucket = aws_s3_bucket.resume_site.id
 
-  block_public_acls =false
-  block_public_policy = false
-  ignore_public_acls = false
-  restrict_public_buckets = false
+  block_public_acls = true
+  block_public_policy = true
+  ignore_public_acls =  true
+  restrict_public_buckets = true
 }
 
 resource "aws_s3_bucket_policy" "resume_site" {
@@ -83,9 +83,20 @@ resource "aws_iam_role_policy_attachment" "lambda_basic_execution" {
   
 }
 
-resource "aws_iam_role_policy_attachment" "lambda_dynamodb_full" {
-  role = aws_iam_role.lambda_exec.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess"
+resource "aws_iam_role_policy" "lambda_dynamodb_scoped" {
+  name = "lambda-dynamodb-scoped-access"
+  role = aws_iam_role.lambda_exec.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = ["dynamodb:UpdateItem"]
+        Resource = aws_dynamodb_table.my_table.arn
+      }
+    ]
+  })
   
 }
 
@@ -186,4 +197,49 @@ resource "aws_cloudfront_origin_access_control" "resume_site_oac" {
   signing_behavior = "always"
   signing_protocol = "sigv4"
   
+}
+
+resource "aws_cloudfront_distribution" "resume_site_CDN" {
+  enabled = true
+  comment = "Used for static website hosting"
+  default_root_object = "index.html"
+  http_version = "http2"
+  price_class = "PriceClass_All"
+  aliases = ["alfiyajaved.in"]
+  is_ipv6_enabled = true
+  web_acl_id = "arn:aws:wafv2:us-east-1:046276255165:global/webacl/CreatedByCloudFront-0db22b05/fdddc405-4f80-4138-9df8-5976e26b302f"
+  
+  origin {
+    domain_name = aws_s3_bucket.resume_site.bucket_regional_domain_name
+    origin_id = "alfiyajaved.in.s3.us-east-2.amazonaws.com-mnlfwp5tdce"
+    origin_access_control_id = aws_cloudfront_origin_access_control.resume_site_oac.id
+    connection_attempts = 3
+    connection_timeout = 10
+  }
+
+  default_cache_behavior {
+    target_origin_id = "alfiyajaved.in.s3.us-east-2.amazonaws.com-mnlfwp5tdce"
+    viewer_protocol_policy = "redirect-to-https"
+    allowed_methods = ["HEAD", "GET"]
+    cached_methods = ["HEAD", "GET"]
+    compress = true
+  
+    cache_policy_id = "658327ea-f89d-4fab-a63d-7e88639e58f6"
+  }
+
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
+    }
+  }
+  
+  viewer_certificate {
+    acm_certificate_arn = aws_acm_certificate.cert.arn
+    ssl_support_method = "sni-only"
+    minimum_protocol_version = "TLSv1.2_2021"
+  }
+
+  tags = {
+    Name = "alfiyajaved.in"
+  }
 }
