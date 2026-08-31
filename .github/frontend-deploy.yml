@@ -1,0 +1,33 @@
+name: Deploy Frontend
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'Frontend/**'
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout-code
+        uses: actions/Checkout@v4
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::046276255165:role/github-actions-deploy-role
+          aws-region: us-east-2
+
+      - name: Deploy to S3
+        run: aws s3 sync ./Frontend s3://alfiyajaved.in --delete
+
+      - name: Invalidate CloudFront Cache
+        run: aws cloudfront create-invalidation --distribution-id E2F6MEC5BIFAER --paths "/*"
+        

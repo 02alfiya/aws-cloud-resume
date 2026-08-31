@@ -1,0 +1,51 @@
+name: Deploy Backend
+
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'Backend/**'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+
+      - name: Run tests
+        working-directory: ./Backend
+        run: python -m unittest test_lambda.py
+
+deploy:
+  needs: test
+  runs-on: ubuntu-latest
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Package Lambda function
+      working-directory: ./Backend
+      run: zip lambda_function.zip lambda_function.py
+
+    - name: Configure AWS credentials via OIDC
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: arn:aws:iam:046276255165:role/github-actions-deploy-role
+          aws-region: us-east-2
+
+    - name: Deploy updated code to Lambda
+      run: aws lambda update-function-code --function-name visitor_count_function --zip-file fileb://Backend/lambda_function.zip
+      
