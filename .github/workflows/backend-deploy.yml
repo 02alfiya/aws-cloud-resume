@@ -43,7 +43,7 @@ jobs:
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam:046276255165:role/github-actions-deploy-role
+          role-to-assume: arn:aws:iam::046276255165:role/github-actions-deploy-role
           aws-region: us-east-2
 
       - name: Deploy updated code to Lambda
