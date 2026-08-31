@@ -44,7 +44,7 @@ deploy:
       uses: aws-actions/configure-aws-credentials@v4
       with:
         role-to-assume: arn:aws:iam:046276255165:role/github-actions-deploy-role
-          aws-region: us-east-2
+        aws-region: us-east-2
 
     - name: Deploy updated code to Lambda
       run: aws lambda update-function-code --function-name visitor_count_function --zip-file fileb://Backend/lambda_function.zip
