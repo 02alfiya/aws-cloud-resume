@@ -310,3 +310,81 @@ resource "aws_iam_role_policy" "github_actions_deploy_policy" {
   })
   
 }
+
+#SNS-Application Alerts (default region, us-east-2)
+
+resource "aws_sns_topic" "alerts" {
+  name = "cloud-resume-alerts"
+}
+
+resource "aws_sns_topic_subscription" "email_alert" {
+  topic_arn = aws_sns_topic.alerts.arn
+  protocol = "email"
+  endpoint = "alfiyatamboli8@gmail.com" 
+}
+
+
+#SNS- Billing Alerts (must be us-east-1, reuses existing ACM provider alias)
+resource "aws_sns_topic" "billing_alerts" {
+  provider = aws.us_east_1
+  name = "cloud-resume-billing-alerts"
+}
+
+resource "aws_sns_topic_subscription" "billing_email_alert" {
+  provider = aws.us_east_1
+  topic_arn = aws_sns_topic.billing_alerts.arn
+  protocol = "email"
+  endpoint = "alfiyatamboli8@gmail.com"
+  
+}
+
+#Application Alarms- Free AWS default metrics only
+
+resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
+  alarm_name = "visitor-counter-lambda-errors"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods = 1
+  metric_name = "Errors"
+  namespace = "AWS/Lambda"
+  period = 3600
+  statistic = "Sum"
+  threshold = 0
+  treat_missing_data = "notBreaching"
+  alarm_description = "Alerts if the visitor counter Lambda throws any error"
+  dimensions = { FunctionName = aws_lambda_function.lambda_visitor_count.function_name }
+  alarm_actions = [aws_sns_topic.alerts.arn]
+  
+}
+
+resource "aws_cloudwatch_metric_alarm" "dynamodb_throttles" {
+  alarm_name = "visitor-counter-dynamodb-throttles"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods = 1
+  metric_name = "ThrottledRequests"
+  namespace = "AWS/DynamoDB"
+  period = 3600
+  statistic = "Sum"
+  threshold = 0
+  treat_missing_data = "notBreaching"
+  alarm_description = "Alerts if DynamoDB throttles a request on the visitor count table"
+  dimensions = { TableName = aws_dynamodb_table.my_table.name }
+  alarm_actions = [aws_sns_topic.alerts.arn]
+}
+
+#Billing Alarm- must live in us-east-1, AWS-wide requirement
+
+resource "aws_cloudwatch_metric_alarm" "billing_alarm" {
+  provider = aws.us_east_1
+  alarm_name = "monthly-billing-alert"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods = 1
+  metric_name = "EstimatedCharges"
+  namespace = "AWS/Billing"
+  period = 21600 
+  statistic = "Maximum"
+  threshold = 2
+  alarm_description = "Alerts if AWS estimated monthly charges exceed the threshold"
+  dimensions = { Currency = "USD" }
+  alarm_actions = [ aws_sns_topic.billing_alerts.arn ]
+  
+}
