@@ -283,20 +283,30 @@ This project runs at under $1 per month. It uses AWS's free-tier and pay-per-use
 
 ## Current Status
 
-All infrastructure for this project is managed with Terraform:
+Every piece of this project is complete and managed as code.
+ 
+**Infrastructure — 100% in Terraform:**
 - DynamoDB table
-- S3 bucket, bucket policy, and public access block (fully restricted)
-- IAM role with a scoped policy (UpdateItem only, no broader access)
+- S3 bucket, bucket policy, and public access settings (fully restricted — CloudFront/OAC is the only path in)
+- IAM roles and policies, scoped to least privilege (e.g., Lambda's DynamoDB access is limited to `UpdateItem` on one table, not broad access to every table)
 - Lambda function
 - API Gateway (API, integration, route, and stage)
 - Route 53 hosted zone and DNS record
 - ACM certificate
-- CloudFront distribution 
+- CloudFront distribution, including Origin Access Control and an attached AWS WAF
 
-**Planned next:**
-- CI/CD pipeline with GitHub Actions, to deploy code changes automatically
+**CI/CD — GitHub Actions:**
+- Automated tests run and must pass before any deployment proceeds
+- AWS authentication via OIDC — no long-lived access keys stored anywhere
+- Frontend changes sync to S3 with a CloudFront cache invalidation
+- Backend changes deploy directly to the Lambda function
 
-I am keeping this section honest and updated as the project progresses, instead of only showing the finished parts.
+**Monitoring — CloudWatch + SNS:**
+- Alarms on Lambda errors and DynamoDB throttling
+- A billing threshold alarm, kept in `us-east-1` since AWS billing metrics only exist there
+- Email notifications via SNS, entirely within AWS's Always Free tier — $0 added cost
+I built this project's honesty into the process, not just the code — this section stayed accurate at every stage, including the stretches where things were genuinely unfinished.
+ 
  
 ---
  
