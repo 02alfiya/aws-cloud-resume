@@ -1,10 +1,18 @@
 const api_url = "https://opgpp9eqqh.execute-api.us-east-2.amazonaws.com/count";
 
+
+const MILESTONE_STEP = 100; // keep in sync with Terraform's milestone_step
+
 async function getVisitorCount() {
     try {
         const response = await fetch(api_url);
         const data = await response.json();
         watchAndAnimate(data.visitor_count);
+
+        if (data.visitor_count % MILESTONE_STEP === 0) {
+            showMilestoneToast(data.visitor_count);
+        }
+
         console.log("Visitor count updated successfully");
     }
     catch (error) {
@@ -12,8 +20,20 @@ async function getVisitorCount() {
     }
 }
 
-// Waits until the counter actually scrolls into view before animating.
-// Without this, the animation finishes before anyone sees it happen.
+function showMilestoneToast(count) {
+    const toast = document.createElement("div");
+    toast.className = "toast";
+    toast.setAttribute("role", "status");
+    toast.textContent = `🎉 Milestone — you are visitor #${count.toLocaleString()}!`;
+    document.body.appendChild(toast);
+
+    requestAnimationFrame(() => toast.classList.add("show"));
+    setTimeout(() => {
+        toast.classList.remove("show");
+        setTimeout(() => toast.remove(), 400);
+    }, 6000);
+}
+
 function watchAndAnimate(finalCount) {
     const numberEl = document.getElementById("visitor-count");
     const barEl = document.getElementById("stat-bar-fill");
@@ -22,8 +42,8 @@ function watchAndAnimate(finalCount) {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 animateCount(numberEl, finalCount);
-                barEl.style.width = "100%"; // triggers the CSS transition on the color bar
-                observer.unobserve(entry.target); // only animate once, not every scroll
+                barEl.style.width = "100%";
+                observer.unobserve(entry.target);
             }
         });
     }, { threshold: 0.5 });
@@ -37,14 +57,14 @@ function animateCount(element, finalCount, duration = 1500) {
     function update(currentTime) {
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+        const eased = 1 - Math.pow(1 - progress, 3);
         const currentValue = Math.floor(eased * finalCount);
         element.innerText = currentValue;
 
         if (progress < 1) {
             requestAnimationFrame(update);
         } else {
-            element.innerText = finalCount; // lands exactly on the real number
+            element.innerText = finalCount;
         }
     }
 
