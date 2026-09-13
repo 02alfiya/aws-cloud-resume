@@ -4,3 +4,10 @@ variable "cloudfront_distribution_id" {
     default = "E2F6MEC5BIFAER"
   
 }
+
+variable "milestone_step" {
+    description = "Announce every Nth visitor as a milestone(0 disables)"
+    type = number
+    default = 100
+  
+}

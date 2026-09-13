@@ -114,6 +114,17 @@ resource "aws_lambda_function" "lambda_visitor_count" {
   runtime = "python3.14"
   filename = data.archive_file.lambda_zip.output_path
   source_code_hash = data.archive_file.lambda_zip.output_sha256
+
+  environment {
+    variables = {
+      SERVICE_NAME = "visitor-counter"
+      LOG_LEVEL = "INFO"
+      METRICS_NAMESPACE = "CloudResume"
+      VISITOR_TABLE = aws_dynamodb_table.my_table.name
+      MILESTONE_STEP = tostring(var.milestone_step)
+      MILESTONE_TOPIC_ARN = aws_sns_topic.milestones.arn
+    }
+  }
  
 }
 
