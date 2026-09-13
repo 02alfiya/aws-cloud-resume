@@ -69,7 +69,7 @@ resource "aws_cloudwatch_metric_alarm" "api_5xx" {
 }
 
 # The Dashboard
-resource "aws_cloudwatch_dashboard" "cloud_resume" {
+resource "aws_cloudwatch_dashboard" "cloud_resume"{
     dashboard_name = "cloud-resume-dashboard"
     dashboard_body = jsonencode({
         widgets = [
@@ -165,22 +165,6 @@ resource "aws_cloudwatch_dashboard" "cloud_resume" {
                       ["CloudResume", "VisitorCount", { stat = "Maximum", label = "Latest visitor count" }],
                       ["CloudResume", "VisitorMilestone", { stat = "Maximum", label = "Milestones hit" }],
                       ["CloudResume", "HandlerError", { stat = "Sum", label = "Handler errors" }],
-                    ]
-                }
-            },
-            {
-                type   = "metric"
-                x      = 16
-                y      = 6
-                width  = 8
-                height = 6
-                properties = {
-                    title  = "Alarm Status"
-                    region = "us-east-2"
-                    alarms = [
-                      aws_cloudwatch_metric_alarm.lambda_errors.arn,
-                      aws_cloudwatch_metric_alarm.dynamodb_throttles.arn,
-                      aws_cloudwatch_metric_alarm.api_5xx.arn,
                     ]
                 }
             },
