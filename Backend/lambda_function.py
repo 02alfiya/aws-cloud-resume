@@ -92,7 +92,7 @@ def emit_metric(name, value, unit="Count"):
 
 
 dynamodb = boto3.resource("dynamodb")
-table = dynamodb.Table(os.environ.get("VISITOR_TABLE", "visit_counter"))
+table = dynamodb.Table(os.environ.get("VISITOR_TABLE", "visitor_count"))
 
 
 def announce_milestone(new_count, request_id):
