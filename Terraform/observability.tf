@@ -169,57 +169,60 @@ resource "aws_cloudwatch_dashboard" "cloud_resume"{
                 }
             },
             {
+                type   = "alarm"
+                x      = 16
+                y      = 6
+                width  = 8
+                height = 6
+                properties = {
+                  title  = "Alarm Status"
+                  alarms = [
+                    aws_cloudwatch_metric_alarm.lambda_errors.arn,
+                    aws_cloudwatch_metric_alarm.dynamodb_throttles.arn,
+                    aws_cloudwatch_metric_alarm.api_5xx.arn,
+                  ]
+                }
+            },
+            {
                 type   = "log"
                 x      = 0
                 y      = 12
                 width  = 12
                 height = 7
                 properties = {
-                    title  = "Recent Requests — structured JSON logs"
-                    region = "us-east-2"
-                    view   = "table"
-                    query  = <<-EOT
-                      fields @timestamp, level, message, new_count, duration_ms, source_ip, cold_start
-                      | filter ispresent(new_count)
-                      | sort @timestamp desc
-                      | limit 30
-                    EOT
+                  title         = "Recent Requests — structured JSON logs"
+                  region        = "us-east-2"
+                  view          = "table"
+                  logGroupNames = ["/aws/lambda/${local.lambda_function_name}"]
+                  query         = "SOURCE '/aws/lambda/visitor_count_function' | fields @timestamp, level, message, new_count, duration_ms, source_ip, cold_start | filter ispresent(new_count) | sort @timestamp desc | limit 30"
                 }
-            },
-            {
+            },        
+            {     
                 type   = "log"
                 x      = 12
                 y      = 12
                 width  = 6
                 height = 7
                 properties = {
-                    title  = "Recent Errors"
-                    region = "us-east-2"
-                    view   = "table"
-                    query  = <<-EOT
-                      fields @timestamp, message, error_type, error
-                      | filter level = "ERROR"
-                      | sort @timestamp desc
-                      | limit 20
-                    EOT
+                  title         = "Recent Errors"
+                  region        = "us-east-2"
+                  view          = "table"
+                  logGroupNames = ["/aws/lambda/${local.lambda_function_name}"]
+                  query         = "SOURCE '/aws/lambda/visitor_count_function' | fields @timestamp, message, error_type, error | filter level = \"ERROR\" | sort @timestamp desc | limit 20"
                 }
-            },
-            {
+            },        
+            {     
                 type   = "log"
                 x      = 18
                 y      = 12
                 width  = 6
                 height = 7
                 properties = {
-                    title  = "Visitor Milestones"
-                    region = "us-east-2"
-                    view   = "table"
-                    query  = <<-EOT
-                      fields @timestamp, milestone
-                      | filter ispresent(milestone)
-                      | sort @timestamp desc
-                      | limit 20
-                    EOT
+                  title         = "Visitor Milestones"
+                  region        = "us-east-2"
+                  view          = "table"
+                  logGroupNames = ["/aws/lambda/${local.lambda_function_name}"]
+                  query         = "SOURCE '/aws/lambda/visitor_count_function' | fields @timestamp, milestone | filter ispresent(milestone) | sort @timestamp desc | limit 20"
                 }
             },
         ]
