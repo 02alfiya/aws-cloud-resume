@@ -1,94 +1,195 @@
 # Cloud Resume Challenge — Serverless Portfolio on AWS
- 
-A personal portfolio website built entirely on AWS managed and serverless services. This project is part of the Cloud Resume Challenge. It includes a live backend feature (a visitor counter), infrastructure managed as code with Terraform, and automated unit tests.
+
  
 **Live site:** [alfiyajaved.in](https://alfiyajaved.in)
 
+> **Summary:** A portfolio site that must count visitors in real time, redeploy itself on
+> every git push, and tell me within minutes when something breaks — built on AWS serverless
+> (S3, CloudFront, Lambda, API Gateway, DynamoDB), defined entirely in Terraform, delivered
+> by GitHub Actions with OIDC, and observable through structured JSON logging, EMF custom
+> metrics, a CloudWatch dashboard, and SNS alarms — for under $1/month.
 
----
- 
-
-## About This Project
- 
-I built this to learn AWS by deploying something real, not just following theory. It started as a static portfolio site and grew to include a serverless backend, infrastructure as code, and automated testing. I am currently finishing the last parts of the infrastructure in Terraform and building a CI/CD pipeline next.
- 
-I document the real bugs and decisions behind this project on my blog: [alfiyajaved.hashnode.dev](https://alfiyajaved.hashnode.dev)
- 
-
----
-
-
-## Architecture
- 
-![Architecture Diagram](./assets/architecture-diagram.png)
- 
-The project has two separate paths.
- 
-**Frontend path** — delivers the static site.
-`User → Route 53 → CloudFront → S3`
- 
-**Backend path** — powers the visitor counter.
-`Browser (JavaScript) → API Gateway → Lambda → DynamoDB`
- 
-The S3 bucket is private. It can only be reached through CloudFront, using Origin Access Control (OAC). The bucket cannot be accessed directly from the internet.
- 
-
-
- ---
-
-
-## Tech Stack
- 
-| Layer | Service | Purpose |
-|---|---|---|
-| Hosting | S3 | Stores the static site files (HTML, CSS, JS) |
-| CDN | CloudFront | Delivers the site with caching and HTTPS |
-| DNS | Route 53 | Points the domain to CloudFront |
-| SSL/TLS | ACM | Provides the HTTPS certificate |
-| API | API Gateway (HTTP API) | Exposes the visitor counter endpoint |
-| Compute | Lambda (Python 3.14) | Runs the visitor counter logic |
-| Database | DynamoDB | Stores the visitor count (on-demand billing) |
-| Infrastructure as Code | Terraform | Manages AWS resources as code |
-| Testing | pytest, unittest.mock | Tests the Lambda function without touching real AWS resources |
-
-See [`MANUAL_ARCHITECTURE.md`](./MANUAL_ARCHITECTURE.md) for the full manual build notes.
- 
-
+I started this project as the [Cloud Resume Challenge](https://cloudresumechallenge.dev/).
+Then I went further: I added observability features that most challenge solutions do not have —
+structured JSON logs, a CloudWatch dashboard, error alarms, and milestone alerts.
 
 ---
 
 
-## API Reference
- 
-| Method | Endpoint | Description | Response |
+## ✨ Features
+
+### Core — the challenge
+
+| Feature | How it works |
+|---|---|
+| Static website hosting | S3 + CloudFront, free HTTPS certificate (ACM), custom domain on Route 53 |
+| Visitor counter | API Gateway → Lambda (Python) → DynamoDB |
+| Infrastructure as Code | Every AWS resource is defined in Terraform. I do not build things by clicking in the console. |
+| CI/CD | GitHub Actions deploys frontend and backend on every push to `main` |
+| Secure deploys | GitHub uses OIDC to get short-lived AWS credentials. No passwords or access keys stored in GitHub. |
+| Tests | Unit tests with mocked AWS calls run before every backend deploy |
+
+### Beyond the challenge ⭐
+
+| Feature | What it does |
+|---|---|
+| ⭐ Structured JSON logging | Every Lambda log line is valid JSON with a level, request ID, count, and duration. CloudWatch can search these fields like a database. |
+| ⭐ CloudWatch dashboard | One page with live graphs: traffic, errors, duration, DynamoDB activity, custom metrics, and recent logs. |
+| ⭐ SNS error alerts | Email alarms for Lambda errors, DynamoDB throttles, API Gateway 5xx, and monthly billing over $2. |
+| ⭐ Milestone logging | Every 100th visitor triggers a log entry, a custom metric, an email to me, and a small 🎉 message on the site. |
+| ⭐ Modern UI | Clean CSS design, an animated terminal card that replays a deployment, and support for reduced-motion settings. |
+
+---
+
+
+## 🏗 Architecture
+
+```mermaid
+flowchart LR
+    V[Visitor] -->|HTTPS| CF[CloudFront]
+    CF --> S3[(S3 static site)]
+    V -->|GET /count| API[API Gateway]
+    API --> L[Lambda - Python]
+    L -->|+1| DDB[(DynamoDB)]
+    L -->|JSON logs + EMF metrics| CW[CloudWatch]
+    CW --> D[Dashboard]
+    CW --> A[Alarms]
+    A -->|email| SNS1[SNS alerts]
+    L -->|every 100th visitor| SNS2[SNS milestones]  
+```
+1. CloudFront serves the site from the private S3 origin (signed OAC requests only).
+2. The page calls `GET /count` — dynamic, so it bypasses CloudFront entirely.
+3. Lambda increments DynamoDB with an atomic `ADD` (no read-modify-write race), logs JSON,
+   emits EMF metrics, and returns the count.
+4. CloudWatch turns logs into metrics, metrics into graphs, and breaches into emails.
+
+---
+
+## 🧰 Tech Stack
+
+| Area | Technology |
+|---|---|
+| Frontend | HTML, CSS, vanilla JavaScript |
+| Backend | Python 3.14, boto3 |
+| Database | DynamoDB (pay-per-request) |
+| IaC | Terraform (dual-region providers) |
+| CI/CD | GitHub Actions + AWS OIDC (keyless) |
+| Observability | CloudWatch Logs, EMF, Dashboard, Alarms, SNS |
+| Testing | Python `unittest` with mocked AWS calls |
+
+
+---
+
+
+## 📏 Success Metrics
+
+Every number below is measured, with the command that reproduces it.
+*(Mapped to the four DORA metrics where applicable.)*
+
+| Metric | Target | Measured | How to reproduce |
 |---|---|---|---|
-| GET | `/count` | Increments and returns the current visitor count | `{ "visitor_count": <number> }` |
- 
+| Routine infra deploy (`terraform apply`, small change) | ≤ 90 s | **[X] s avg (n=3, [date])** | `time terraform apply -auto-approve` ×3, average `real` |
+| Fresh rebuild (empty → full stack) | ≤ 25 min | ~[X] min (initial build) | One-time; dominated by ACM validation + CloudFront |
+| Frontend lead time (push → live) | ≤ 60 s | **[X] s** | GitHub Actions run history, avg of last 5 |
+| Backend lead time (push → Lambda updated, incl. tests) | ≤ 2 min | **[X] s** | GitHub Actions run history, avg of last 5 |
+| MTTD — error → alarm email | ≤ 5 min | ≤ 5 min by design | Alarm period 300 s × 1 evaluation |
+| MTTR — detection → fix live | ≤ 30 min | **[X] min** (real incident) | Incident timeline in build log |
+| Log fidelity (application lines as JSON) | 100% | **[X]%** | Insights query below |
+| False alarms | 0 / 30 days | **0** | Inbox, last 30 days |
+| Metric freshness (invocation → datapoint) | < 2 min | ~1 min | EMF async extraction, observed |
+| Monthly cost | < $1 | **$[X]** | AWS bill + $2 ceiling alarm |
+
+Log fidelity check:
+
+```text
+SOURCE '/aws/lambda/visitor_count_function'
+| stats count(*) as total_lines, sum(ispresent(level)) as structured_lines
+```
+
+(Application lines only — Lambda's platform `START`/`END`/`REPORT` lines are excluded by design.)
+
 ---
 
+## 📊 Observability in Detail
+
+### Structured JSON logging
+
+Every log line is one JSON object, so Logs Insights treats the log group like a queryable table:
+
+```json
+{
+  "timestamp": "2026-09-21T10:15:30.123+00:00",
+  "level": "INFO",
+  "service": "visitor-counter",
+  "message": "visitor count updated",
+  "request_id": "a1b2c3d4",
+  "new_count": 101,
+  "previous_count": 100,
+  "duration_ms": 38.2,
+  "cold_start": false
+}
+```
+
+### Custom metrics via EMF
+
+Metrics ride inside the log lines (Embedded Metric Format) — CloudWatch extracts them
+asynchronously. No `PutMetricData` call, no extra latency, no extra IAM permission,
+and the first 10 custom metrics are free.
+
+### Alarms
+
+| Alarm | Watches | Period |
+|---|---|---|
+| `visitor-counter-lambda-errors` | Any Lambda error | 5 min |
+| `visitor-counter-dynamodb-throttles` | Throttled requests | 5 min |
+| `visitor-counter-api-5xx` | API Gateway server errors | 5 min |
+| `monthly-billing-alert` | Estimated charges > $2 (us-east-1) | 6 h |
+
+` treat_missing_data = "notBreaching"` keeps a low-traffic site from flapping —
+quiet is normal, an error is not.
+
+### Milestones
+
+Every 100th visitor triggers four signals at once: a JSON log entry, a `VisitorMilestone`
+metric, an SNS email to me, and a 🎉 toast in that visitor's browser. The step is one
+Terraform variable (`milestone_step`), and the backend is the single source of truth —
+the frontend only reacts to what the API tells it.
+
+---
+
+## 🔄 CI/CD
+
+| Push to… | Workflow | Does |
+|---|---|---|
+| `Frontend/**` | Deploy Frontend | Sync to S3 → invalidate CloudFront |
+| `Backend/**` | Deploy Backend | Run unit tests → update Lambda code (tests gate the deploy) |
+
+Both pipelines assume a role via **OIDC federation** — GitHub receives short-lived
+credentials per run. No access keys exist anywhere in the repo or GitHub settings.
+
+---
 
 ## Project Structure
  
 ```
-Cloud_Resume_Project
-├── frontend/                 
-│   ├── index.html             # HTML file
-│   ├── style.css              # CSS file
-│   └── visitor.js             # javascript file
+.
+├── Frontend/
+│   ├── index.html          # the page
+│   ├── style.css           # all styling
+│   ├── visitor.js          # counter + milestone toast
+│   └── terminal.js         # animated terminal card
 ├── Backend/
-│   ├── lambda_function.py     # Lambda handler for the visitor counter
-│   └── test_lambda.py         # Unit tests for the Lambda function
-├── terraform/
-│   ├── main.tf                # Resource definitions
-│   ├── providers.tf           # Provider and version configuration
-│   ├── outputs.tf             # Output values
-│   ├── variables.tf           # variable declaration
-│   └── 
-│   └── build/                 # Generated Lambda deployment package (gitignored)
-├── assets                     # Images 
-│    
-├── MANUAL_ARCHITECTURE.md     # Manual-build documentation
-└── README.md
+│   ├── lambda_function.py  # counter + logging + metrics + milestones
+│   └── test_lambda.py      # unit tests with mocks
+├── Terraform/
+│   ├── providers.tf        # AWS providers (two regions)
+│   ├── main.tf             # core resources: S3, DynamoDB, Lambda, API, CloudFront...
+│   ├── observability.tf    # dashboard, log group, alarms, milestone topic
+│   ├── variables.tf        # input values
+│   └── outputs.tf          # URLs and names after apply
+└── .github/workflows/
+    ├── deploy-frontend.yml
+    └── deploy-backend.yml
 ```
 
 ---

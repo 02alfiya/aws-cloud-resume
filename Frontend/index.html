@@ -29,7 +29,7 @@
             <div class="hero-text">
                 <h1>Alfiya Javed</h1>
                 <h2>DevOps &amp; Cloud Engineer</h2>
-                <p><i class="fa-solid fa-location-dot"></i> Sangola, Maharashtra</p>
+                <p><i class="fa-solid fa-location-dot"></i> Pune, Maharashtra</p>
                 <div class="social-links">
                     <a href="https://github.com/02alfiya" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i> GitHub</a>
                     <a href="https://www.linkedin.com/in/alfiya-tamboli-5326a1235" target="_blank" rel="noopener"><i class="fa-brands fa-linkedin"></i> LinkedIn</a>
@@ -66,7 +66,7 @@
     <section id="about" class="container section-padding">
         <h2 class="section-title">Professional Summary</h2>
         <p>
-            2024 BCA graduate building a career in DevOps and Cloud Computing. I prefer practical implementation over just theory — this site itself is proof: a serverless portfolio built on AWS (S3, CloudFront, Lambda, DynamoDB, API Gateway), with infrastructure managed through Terraform.
+            2024 BCA graduate building a career in DevOps and Cloud Computing. I prefer practical implementation over just theory — this site is the proof: a serverless portfolio on AWS (S3, CloudFront, Lambda, DynamoDB, API Gateway), managed in Terraform and deployed by GitHub Actions. It also watches itself: structured JSON logs, custom metrics, a CloudWatch dashboard, and alarms that email me when something breaks.
         </p>
     </section>
 
@@ -74,10 +74,10 @@
         <div class="container">
             <h2 class="section-title">Technical Skills</h2>
             <div class="skills-grid">
-                <div class="skill-category">
+               <div class="skill-category">
                     <h3>Cloud &amp; Infrastructure</h3>
                     <ul>
-                        <li>AWS (S3, CloudFront, Lambda, API Gateway, DynamoDB, Route 53, ACM, EC2, IAM)</li>
+                        <li>AWS (S3, CloudFront, Lambda, API Gateway, DynamoDB, Route 53, ACM, EC2, IAM, CloudWatch, SNS)</li>
                         <li>Terraform (Infrastructure as Code)</li>
                         <li>AWS CLI</li>
                     </ul>
@@ -86,14 +86,14 @@
                     <h3>Web Development</h3>
                     <ul>
                         <li>HTML, CSS, JavaScript</li>
-                        <li>Python (boto3, unit testing with pytest)</li>
+                        <li>Python (boto3, unit testing with unittest)</li>
                         <li>WordPress &amp; WooCommerce</li>
                     </ul>
                 </div>
                 <div class="skill-category">
                     <h3>Tools &amp; OS</h3>
                     <ul>
-                        <li>Git &amp; GitHub</li>
+                        <li>Git &amp; GitHub, GitHub Actions (CI/CD with OIDC)</li>
                         <li>Linux / Bash Scripting</li>
                         <li>Nginx &amp; Apache (load balancing, reverse proxy)</li>
                     </ul>
@@ -107,13 +107,15 @@
         <div class="projects-grid">
 
             <div class="project-card">
-                <h3>Serverless Cloud Resume Challenge</h3>
-                <p class="tech-stack">AWS S3 | CloudFront | Lambda | DynamoDB | API Gateway | Terraform</p>
+                <h3>Serverless Cloud Resume Challenge — with Full Observability</h3>
+                <p class="tech-stack">AWS S3 | CloudFront | Lambda | DynamoDB | API Gateway | Terraform | GitHub Actions | CloudWatch</p>
                 <ul>
-                    <li>Architected a fully serverless portfolio site on AWS using S3, CloudFront, Route 53, and ACM for secure, low-cost static hosting.</li>
-                    <li>Built a Python Lambda function with API Gateway and DynamoDB to power a real-time visitor counter.</li>
-                    <li>100% of infrastructure managed in Terraform, with unit tests using pytest and mocked AWS calls.</li>
-                    <li>Runs at under $1/month using AWS free-tier and pay-per-use pricing.</li>
+                    <li>Hosted on AWS with a private S3 origin behind CloudFront (Origin Access Control), Route 53 DNS, and HTTPS-only traffic — no public buckets, no servers.</li>
+                    <li>Real-time visitor counter: API Gateway → Python Lambda → DynamoDB, using atomic update expressions to prevent race conditions.</li>
+                    <li>Added a full observability layer: structured JSON logging, EMF custom metrics, a CloudWatch dashboard, and SNS email alarms (Lambda errors, DynamoDB throttles, API 5xx, and a $2 billing cap).</li>
+                    <li>Milestone alerts: every 100th visitor triggers a log entry, a custom metric, an email to me, and a 🎉 toast on their screen.</li>
+                    <li>CI/CD with GitHub Actions and OIDC — unit tests gate every backend deploy, and no AWS credentials are stored anywhere.</li>
+                    <li>All core infrastructure in Terraform; runs for under $1/month, enforced by a billing alarm.</li>
                 </ul>
                 <div class="project-actions">
                     <a href="https://github.com/02alfiya/aws-cloud-resume" target="_blank" class="btn btn-outline">View Repository</a>
