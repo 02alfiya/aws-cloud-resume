@@ -34,7 +34,7 @@ class JsonFormatter(logging.Formatter):
         }
         details = getattr(record, "details", None)
         if details:
-            payload["details"] = details
+            payload.update(details) 
         if record.exc_info:
             payload["exception"] = self.formatException(record.exc_info)
         return json.dumps(payload, default=str)
