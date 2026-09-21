@@ -194,7 +194,7 @@ resource "aws_cloudwatch_dashboard" "cloud_resume"{
                   region        = "us-east-2"
                   view          = "table"
                   logGroupNames = ["/aws/lambda/${local.lambda_function_name}"]
-                  query         = "filter ispresent(new_count) or ispresent(details.new_count) | fields @timestamp, level, message, coalesce(new_count, details.new_count) as new_count, coalesce(duration_ms, details.duration_ms) as duration_ms, coalesce(source_ip, details.source_ip) as source_ip | sort @timestamp desc | limit 30"
+                  query         = "SOURCE '/aws/lambda/visitor_count_function' | filter ispresent(new_count) or ispresent(details.new_count) | fields @timestamp, level, message, coalesce(new_count, details.new_count) as new_count, coalesce(duration_ms, details.duration_ms) as duration_ms, coalesce(source_ip, details.source_ip) as source_ip | sort @timestamp desc | limit 30"
                 }
             },        
             {     
@@ -208,7 +208,7 @@ resource "aws_cloudwatch_dashboard" "cloud_resume"{
                   region        = "us-east-2"
                   view          = "table"
                   logGroupNames = ["/aws/lambda/${local.lambda_function_name}"]
-                  query         = "filter level = \"ERROR\" | fields @timestamp, message, coalesce(error_type, details.error_type) as error_type, coalesce(error, details.error) as error | sort @timestamp desc | limit 20"
+                  query         = "SOURCE '/aws/lambda/visitor_count_function' | filter level = \"ERROR\" | fields @timestamp, message, coalesce(error_type, details.error_type) as error_type, coalesce(error, details.error) as error | sort @timestamp desc | limit 20"
                 }
             },        
             {     
@@ -222,7 +222,7 @@ resource "aws_cloudwatch_dashboard" "cloud_resume"{
                   region        = "us-east-2"
                   view          = "table"
                   logGroupNames = ["/aws/lambda/${local.lambda_function_name}"]
-                  query         = "filter ispresent(milestone) or ispresent(details.milestone) | fields @timestamp, coalesce(milestone, details.milestone) as milestone | sort @timestamp desc | limit 20"
+                  query         = "SOURCE '/aws/lambda/visitor_count_function' | filter ispresent(milestone) or ispresent(details.milestone) | fields @timestamp, coalesce(milestone, details.milestone) as milestone, message | sort @timestamp desc | limit 20"
                 }
             },
         ]
