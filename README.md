@@ -24,7 +24,7 @@ layer is what I added beyond it — after a real outage taught me the difference
 ---
 
 
-## ✨ Features
+## Features
 
 ### Core — the challenge
 
@@ -36,20 +36,20 @@ layer is what I added beyond it — after a real outage taught me the difference
 | CI/CD | GitHub Actions; tests gate the backend; OIDC, zero stored credentials |
 | Security | Least-privilege IAM (one DynamoDB action, one SNS ARN), TLS 1.2+, CORS pinned to the domain |
 
-### Beyond the challenge ⭐
+### Beyond the challenge 
 
 | Feature | What it does |
 |---|---|
-| ⭐ Structured JSON logging | Every Lambda log line is valid JSON with a level, request ID, count, and duration. CloudWatch can search these fields like a database. |
-| ⭐ CloudWatch dashboard | One page with live graphs: traffic, errors, duration, DynamoDB activity, custom metrics, and recent logs. |
-| ⭐ SNS error alerts | Email alarms for Lambda errors, DynamoDB throttles, API Gateway 5xx, and monthly billing over $2. |
-| ⭐ Milestone logging | Every 100th visitor triggers a log entry, a custom metric, an email to me, and a small 🎉 message on the site. |
-| ⭐ Modern UI | Clean CSS design, an animated terminal card that replays a deployment, and support for reduced-motion settings. |
+|  Structured JSON logging | Every Lambda log line is valid JSON with a level, request ID, count, and duration. CloudWatch can search these fields like a database. |
+|  CloudWatch dashboard | One page with live graphs: traffic, errors, duration, DynamoDB activity, custom metrics, and recent logs. |
+|  SNS error alerts | Email alarms for Lambda errors, DynamoDB throttles, API Gateway 5xx, and monthly billing over $2. |
+|  Milestone logging | Every 100th visitor triggers a log entry, a custom metric, an email to me, and a small  message on the site. |
+|  Modern UI | Clean CSS design, an animated terminal card that replays a deployment, and support for reduced-motion settings. |
 
 ---
 
 
-## 🏗 Architecture
+##  Architecture
 
 ```mermaid
 flowchart LR
@@ -72,7 +72,7 @@ flowchart LR
 
 ---
 
-## 🧰 Tech Stack
+##  Tech Stack
 
 | Area | Technology |
 |---|---|
@@ -88,7 +88,7 @@ flowchart LR
 ---
 
 
-## 📏 Success Metrics
+##  Success Metrics
 
 Every number below is measured, with the command that reproduces it.
 *(Mapped to the four DORA metrics where applicable.)*
@@ -117,7 +117,7 @@ SOURCE '/aws/lambda/visitor_count_function'
 
 ---
 
-## 📊 Observability in Detail
+##  Observability in Detail
 
 ### Structured JSON logging
 
@@ -158,7 +158,7 @@ quiet is normal, an error is not.
 ### Milestones
 
 Every 100th visitor triggers four signals at once: a JSON log entry, a `VisitorMilestone`
-metric, an SNS email to me, and a 🎉 toast in that visitor's browser. The step is one
+metric, an SNS email to me, and a toast in that visitor's browser. The step is one
 Terraform variable (`milestone_step`), and the backend is the single source of truth —
 the frontend only reacts to what the API tells it.
 
@@ -327,7 +327,9 @@ free, log retention bounded at 30 days. A $2 billing alarm is the enforcement, n
   source of truth into one. That principle has caught every bug since.
  
 ---
- 
+## Live Site
+
+![Live Site](assets/SiteHero.png)
  
 ## Contact
  
