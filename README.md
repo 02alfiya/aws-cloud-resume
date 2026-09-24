@@ -204,9 +204,9 @@ credentials per run. No access keys exist anywhere in the repo or GitHub setting
 
 | | |
 |---|---|
-| ![Dashboard](assests/Dashboard.png) | ![Logs](assests/StructuredLogs.png) |
+| ![Dashboard](assets/Dashboard.png) | ![Logs](assets/StructuredLogs.png) |
 | *Dashboard: service + custom metrics, alarms, live log tables* | *Logs Insights: JSON fields queried like a table* |
-| ![Milestone](assests/MilestoneEmail.png) | ![Actions](assets/GitHubActions.png) |
+| ![Milestone](assets/MilestoneEmail.png) | ![Actions](assets/GitHubActions.png) |
 | *Milestone #100: toast on site + email in inbox* | *CI: tests gate every backend deploy* |
  
 ---
