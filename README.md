@@ -1,7 +1,10 @@
 # Cloud Resume Challenge — Serverless Portfolio on AWS
 
- 
-**Live site:** [alfiyajaved.in](https://alfiyajaved.in)
+![AWS](https://img.shields.io/badge/AWS-serverless-orange?logo=amazon-aws)
+![Terraform](https://img.shields.io/badge/IaC-Terraform-623CE4?logo=terraform)
+![Python](https://img.shields.io/badge/Python-3.14-3776AB?logo=python)
+![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub_Actions-2088FF?logo=github-actions)
+
 
 > **Summary:** A portfolio site that must count visitors in real time, redeploy itself on
 > every git push, and tell me within minutes when something breaks — built on AWS serverless
@@ -9,9 +12,14 @@
 > by GitHub Actions with OIDC, and observable through structured JSON logging, EMF custom
 > metrics, a CloudWatch dashboard, and SNS alarms — for under $1/month.
 
-I started this project as the [Cloud Resume Challenge](https://cloudresumechallenge.dev/).
-Then I went further: I added observability features that most challenge solutions do not have —
-structured JSON logs, a CloudWatch dashboard, error alarms, and milestone alerts.
+**Live site:** [alfiyajaved.in](https://alfiyajaved.in) · **Build log:** [alfiyajaved.hashnode.dev](https://alfiyajaved.hashnode.dev)
+
+Started as the [Cloud Resume Challenge](https://cloudresumechallenge.dev/). The observability
+layer is what I added beyond it — after a real outage taught me the difference between
+"it works" and "I can prove it works."
+
+![CloudWatch dashboard](assets/Dashboard.png)
+
 
 ---
 
@@ -20,14 +28,13 @@ structured JSON logs, a CloudWatch dashboard, error alarms, and milestone alerts
 
 ### Core — the challenge
 
-| Feature | How it works |
+| Feature | How |
 |---|---|
-| Static website hosting | S3 + CloudFront, free HTTPS certificate (ACM), custom domain on Route 53 |
-| Visitor counter | API Gateway → Lambda (Python) → DynamoDB |
-| Infrastructure as Code | Every AWS resource is defined in Terraform. I do not build things by clicking in the console. |
-| CI/CD | GitHub Actions deploys frontend and backend on every push to `main` |
-| Secure deploys | GitHub uses OIDC to get short-lived AWS credentials. No passwords or access keys stored in GitHub. |
-| Tests | Unit tests with mocked AWS calls run before every backend deploy |
+| Static hosting | Private S3 behind CloudFront (Origin Access Control), Route 53, HTTPS via ACM |
+| Visitor counter | API Gateway → Python Lambda → DynamoDB, atomic server-side increment |
+| Infrastructure as Code | Every resource in Terraform — no console-built infrastructure in the critical path |
+| CI/CD | GitHub Actions; tests gate the backend; OIDC, zero stored credentials |
+| Security | Least-privilege IAM (one DynamoDB action, one SNS ARN), TLS 1.2+, CORS pinned to the domain |
 
 ### Beyond the challenge ⭐
 
@@ -88,16 +95,16 @@ Every number below is measured, with the command that reproduces it.
 
 | Metric | Target | Measured | How to reproduce |
 |---|---|---|---|
-| Routine infra deploy (`terraform apply`, small change) | ≤ 90 s | **[X] s avg (n=3, [date])** | `time terraform apply -auto-approve` ×3, average `real` |
-| Fresh rebuild (empty → full stack) | ≤ 25 min | ~[X] min (initial build) | One-time; dominated by ACM validation + CloudFront |
-| Frontend lead time (push → live) | ≤ 60 s | **[X] s** | GitHub Actions run history, avg of last 5 |
-| Backend lead time (push → Lambda updated, incl. tests) | ≤ 2 min | **[X] s** | GitHub Actions run history, avg of last 5 |
-| MTTD — error → alarm email | ≤ 5 min | ≤ 5 min by design | Alarm period 300 s × 1 evaluation |
+| Routine infra deploy (`terraform apply`, small change) | ≤ 90 s | **0m26.317s avg (n=3, [21/09/2026])** | `time terraform apply -auto-approve` ×3, average `real` |
+| Fresh rebuild (empty → full stack) | ≤ 25 min | **~15-20 min** (initial build) | One-time; dominated by ACM validation + CloudFront |
+| Frontend lead time (push → live) | ≤ 60 s | **16 s** | GitHub Actions run history, avg of last 5 |
+| Backend lead time (push → Lambda updated, incl. tests) | ≤ 2 min | **21.8 s** | GitHub Actions run history, avg of last 5 |
+| MTTD — error → alarm email | ≤ 5 min | **≤ 5 min** by design | Alarm period 300 s × 1 evaluation |
 | MTTR — detection → fix live | ≤ 30 min | **[X] min** (real incident) | Incident timeline in build log |
-| Log fidelity (application lines as JSON) | 100% | **[X]%** | Insights query below |
+| Log fidelity (application lines as JSON) | 100% | **100%** | Insights query below |
 | False alarms | 0 / 30 days | **0** | Inbox, last 30 days |
 | Metric freshness (invocation → datapoint) | < 2 min | ~1 min | EMF async extraction, observed |
-| Monthly cost | < $1 | **$[X]** | AWS bill + $2 ceiling alarm |
+| Monthly cost | < $1 | **$0.59** | AWS bill + $2 ceiling alarm |
 
 Log fidelity check:
 
@@ -143,7 +150,7 @@ and the first 10 custom metrics are free.
 | `visitor-counter-lambda-errors` | Any Lambda error | 5 min |
 | `visitor-counter-dynamodb-throttles` | Throttled requests | 5 min |
 | `visitor-counter-api-5xx` | API Gateway server errors | 5 min |
-| `monthly-billing-alert` | Estimated charges > $2 (us-east-1) | 6 h |
+| `monthly-billing-alert` | Estimated charges > $1(us-east-1) | 6 h |
 
 ` treat_missing_data = "notBreaching"` keeps a low-traffic site from flapping —
 quiet is normal, an error is not.
@@ -157,7 +164,7 @@ the frontend only reacts to what the API tells it.
 
 ---
 
-## 🔄 CI/CD
+## CI/CD
 
 | Push to… | Workflow | Does |
 |---|---|---|
@@ -193,7 +200,16 @@ credentials per run. No access keys exist anywhere in the repo or GitHub setting
 ```
 
 ---
+## Screenshots
+
+| | |
+|---|---|
+| ![Dashboard](assests/Dashboard.png) | ![Logs](assests/StructuredLogs.png) |
+| *Dashboard: service + custom metrics, alarms, live log tables* | *Logs Insights: JSON fields queried like a table* |
+| ![Milestone](assests/MilestoneEmail.png) | ![Actions](assets/GitHubActions.png) |
+| *Milestone #100: toast on site + email in inbox* | *CI: tests gate every backend deploy* |
  
+---
 
 ## Prerequisites
  
@@ -210,17 +226,6 @@ venv\Scripts\activate         # Windows
 ```
  
 No external packages are required to run the tests, since boto3 is mocked directly inside the test file. If real dependencies are added later, list them in a `requirements.txt` file.
-
-### AWS CLI
- 
-```bash
-curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-unzip awscliv2.zip
-sudo ./aws/install
-aws --version
-```
- 
-For other operating systems, see the [official AWS CLI install guide](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html).
  
 ### Terraform
  
@@ -243,48 +248,6 @@ This project uses a custom domain. The domain here was purchased through GoDaddy
 ### An AWS account
  
 Required to create all resources in this project.
- 
----
- 
-## Domain Setup (Connecting an External Domain to AWS)
- 
-If your domain is registered outside AWS — GoDaddy in this case — it needs to point to Route 53 before HTTPS and CloudFront will work with your custom domain. Start this step early, since DNS changes take time to propagate.
- 
-### 1. Create a Hosted Zone in Route 53
- 
-```bash
-aws route53 create-hosted-zone --name yourdomain.com --caller-reference $(date +%s) --profile your-profile-name
-```
- 
-This returns four nameserver (NS) values. Copy them.
-
-![Route53HostedZone Image](./assets/route53-hosted-zone-ns.png) 
-
-*(Route 53 hosted zone page, showing the four NS records.)*
- 
-### 2. Update Nameservers at Your Registrar
- 
-Log in to your domain registrar. Go to the domain's DNS or nameserver settings, and replace the registrar's default nameservers with the four Route 53 gave you in step 1. This is called nameserver delegation — it tells the internet that Route 53, not your registrar, now controls this domain's DNS. In GoDaddy specifically, this is under **My Products → DNS → Nameservers → Change → Enter custom nameservers**.
- 
- ![GoDaddySettings Image](./assets/godaddy-ns-settings.png)
-
-*(GoDaddy nameserver settings panel, showing where to paste the custom nameservers.)*
- 
-### 3. Wait for Propagation
- 
-This can take a few minutes up to 48 hours, though it is usually much faster.
- 
-```bash
-dig NS yourdomain.com
-```
- 
-Or check [dnschecker.org](https://dnschecker.org) to see propagation status globally.
- 
-### 4. Verify
- 
-Once propagated, `dig NS yourdomain.com` should show the Route 53 nameservers, not the registrar's default ones.
- 
-Note: the ACM certificate and the CloudFront/Route 53 records themselves are still configured manually for this project (see Current Status below). Nameserver delegation needs to be complete before those steps will work correctly.
  
 ---
  
@@ -337,99 +300,36 @@ terraform apply
 Type `yes` when prompted.
  
 ### 6. Verify the deployment
- 
-After `apply` finishes, confirm the site is actually working, not just that Terraform reported success:
- 
+
 ```bash
-curl https://your-api-url/count
+git push main
 ```
  
-Expected response:
- 
-```json
-{ "visitor_count": 1 }
-```
- 
-Then open the live domain in a browser and confirm the counter displays and increments on refresh.
- 
----
- 
-## Running Tests
- 
-The Lambda function has unit tests that run without connecting to real AWS services. Boto3 is intercepted and mocked before the function is imported, so the tests never touch real data.
- 
-```bash
-cd Backend
-python3 -m unittest test_lambda.py
-```
- 
-Expected output:
- 
-```
-.
-----------------------------------------------------------------------
-Ran 1 test in 0.00Xs
- 
-OK
-```
- 
+> A real setup also needs a Route 53 hosted zone and an ACM certificate in us-east-1
+> (CloudFront's requirement). Full process in my build log.
 ---
  
 ## Cost
+
+Under **$1/month** total. Pay-per-use everywhere, dashboard free, first 10 custom metrics
+free, log retention bounded at 30 days. A $2 billing alarm is the enforcement, not a hope.
  
-This project runs at under $1 per month. It uses AWS's free-tier and pay-per-use services — S3, CloudFront, Lambda, API Gateway, and DynamoDB on-demand billing — so there is no fixed server cost.
- 
+
 ---
+ 
+## What I Learned
 
-
-## Current Status
-
-All infrastructure for this project is managed with Terraform:
-- DynamoDB table
-- S3 bucket, bucket policy, and public access block (fully restricted)
-- IAM role with a scoped policy (UpdateItem only, no broader access)
-- Lambda function
-- API Gateway (API, integration, route, and stage)
-- Route 53 hosted zone and DNS record
-- ACM certificate
-- CloudFront distribution 
-
-**Planned next:**
-- CI/CD pipeline with GitHub Actions, to deploy code changes automatically
-
-I am keeping this section honest and updated as the project progresses, instead of only showing the finished parts.
+- Define the whole system in Terraform — then configuration drift becomes structurally impossible.
+- Keyless CI (OIDC) removes the worst secret in most repos: long-lived cloud credentials.
+- EMF + JSON logging makes even a tiny system fully observable, at zero added cost.
+- My real incident: two copies of the Lambda code and two table names disagreed, and the
+  counter broke. The fix wasn't editing a string — it was collapsing every duplicate
+  source of truth into one. That principle has caught every bug since.
  
 ---
  
-## Screenshots
-
-![LiveSite Image](./assets/live-site.png) 
-
-*(Live site with visitor count visible.)*
-
-![TerraformPlan Image](./assets/terraform-output.png) 
-
-*(A clean `terraform plan` showing "No changes.")*
-
-![TestOutput Image](./assets/test-output.png) 
-
-*(Passing test output)*
-
-![AWSDynamoDBTable Image](./assets/aws-dynamodb-table.png) 
-
-*(The DynamoDB table in AWS Console.)*
  
-
- 
----
- 
-## Build Log
- 
-I documented the real bugs, debugging steps, and decisions behind this project as I built it: [alfiyajaved.hashnode.dev](https://alfiyajaved.hashnode.dev)
- 
----
- 
-## Author
+## Contact
  
 **Alfiya Javed**
 [LinkedIn](https://linkedin.com/in/alfiya-javed-5326a1235/) · [GitHub](https://github.com/02alfiya/) · [Portfolio](https://alfiyajaved.in)
