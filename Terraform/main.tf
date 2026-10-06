@@ -16,7 +16,7 @@ resource "aws_s3_bucket" "resume_site" {
   bucket = "alfiyajaved.in"
 
   tags = {
-    Project = "StaticWebsiteHosting"
+    Project  = "StaticWebsiteHosting"
   }
   
 }
@@ -357,7 +357,7 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
   evaluation_periods = 1
   metric_name = "Errors"
   namespace = "AWS/Lambda"
-  period = 3600
+  period = 300
   statistic = "Sum"
   threshold = 0
   treat_missing_data = "notBreaching"
@@ -373,7 +373,7 @@ resource "aws_cloudwatch_metric_alarm" "dynamodb_throttles" {
   evaluation_periods = 1
   metric_name = "ThrottledRequests"
   namespace = "AWS/DynamoDB"
-  period = 3600
+  period = 300
   statistic = "Sum"
   threshold = 0
   treat_missing_data = "notBreaching"

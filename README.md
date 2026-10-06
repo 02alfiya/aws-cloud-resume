@@ -91,7 +91,6 @@ flowchart LR
 ##  Success Metrics
 
 Every number below is measured, with the command that reproduces it.
-*(Mapped to the four DORA metrics where applicable.)*
 
 | Metric | Target | Measured | How to reproduce |
 |---|---|---|---|
@@ -99,21 +98,9 @@ Every number below is measured, with the command that reproduces it.
 | Fresh rebuild (empty → full stack) | ≤ 25 min | **~15-20 min** (initial build) | One-time; dominated by ACM validation + CloudFront |
 | Frontend lead time (push → live) | ≤ 60 s | **16 s** | GitHub Actions run history, avg of last 5 |
 | Backend lead time (push → Lambda updated, incl. tests) | ≤ 2 min | **21.8 s** | GitHub Actions run history, avg of last 5 |
-| MTTD — error → alarm email | ≤ 5 min | **≤ 5 min** by design | Alarm period 300 s × 1 evaluation |
-| MTTR — detection → fix live | ≤ 30 min | **[X] min** (real incident) | Incident timeline in build log |
-| Log fidelity (application lines as JSON) | 100% | **100%** | Insights query below |
 | False alarms | 0 / 30 days | **0** | Inbox, last 30 days |
 | Metric freshness (invocation → datapoint) | < 2 min | ~1 min | EMF async extraction, observed |
 | Monthly cost | < $1 | **$0.59** | AWS bill + $2 ceiling alarm |
-
-Log fidelity check:
-
-```text
-SOURCE '/aws/lambda/visitor_count_function'
-| stats count(*) as total_lines, sum(ispresent(level)) as structured_lines
-```
-
-(Application lines only — Lambda's platform `START`/`END`/`REPORT` lines are excluded by design.)
 
 ---
 
@@ -139,9 +126,19 @@ Every log line is one JSON object, so Logs Insights treats the log group like a 
 
 ### Custom metrics via EMF
 
-Metrics ride inside the log lines (Embedded Metric Format) — CloudWatch extracts them
-asynchronously. No `PutMetricData` call, no extra latency, no extra IAM permission,
-and the first 10 custom metrics are free.
+The visitor-counter Lambda writes JSON application log records for requests, counter
+updates, errors, and milestones. Lambda also writes platform records such as `START`,
+`END`, and `REPORT`; those are separate from my application logs.
+
+The Lambda emits custom metrics using CloudWatch Embedded Metric Format (EMF):
+
+- `VisitorCount` records the current counter value.
+- `VisitorMilestone` records the counter value when a milestone is reached.
+- `HandlerError` records a handler failure.
+
+A Terraform-managed CloudWatch dashboard is configured to display service metrics,
+custom metrics, alarms, and log queries. A widget needs recent matching data and a valid
+query to show results.
 
 ### Alarms
 
@@ -152,8 +149,6 @@ and the first 10 custom metrics are free.
 | `visitor-counter-api-5xx` | API Gateway server errors | 5 min |
 | `monthly-billing-alert` | Estimated charges > $1(us-east-1) | 6 h |
 
-` treat_missing_data = "notBreaching"` keeps a low-traffic site from flapping —
-quiet is normal, an error is not.
 
 ### Milestones
 
