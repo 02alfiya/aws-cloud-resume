@@ -18,7 +18,7 @@
                     <li><a href="#about">About</a></li>
                     <li><a href="#skills">Skills</a></li>
                     <li><a href="#projects">Projects</a></li>
-                    <li><a href="#experience">Experience</a></li>
+                    <li><a href="#education">Education</a></li>
                 </ul>
             </nav>
         </div>
@@ -65,9 +65,17 @@
 
     <section id="about" class="container section-padding">
         <h2 class="section-title">Professional Summary</h2>
-        <p>
-            2024 BCA graduate building a career in DevOps and Cloud Computing. I prefer practical implementation over just theory — this site is the proof: a serverless portfolio on AWS (S3, CloudFront, Lambda, DynamoDB, API Gateway), managed in Terraform and deployed by GitHub Actions. It also watches itself: structured JSON logs, custom metrics, a CloudWatch dashboard, and alarms that email me when something breaks.
-        </p>
+        <div class="about-content">
+            <p>
+                I am a <strong>Bachelor of Computer Applications (BCA)</strong> graduate (2024) specializing in cloud infrastructure and DevOps practices through intensive training at <strong>Scaler Academy</strong>. I believe in demonstrating competence through execution rather than just theory—and this website is my proof of work.
+            </p>
+            <p style="margin-top: 15px;">
+                This portfolio is a fully serverless <strong>AWS</strong> architecture deployed declaratively via <strong>Terraform</strong> and automated through <strong>GitHub Actions</strong>. Rather than just setting up basic hosting, I focused heavily on engineering the system's observability—configuring structured JSON logging, custom performance metrics, and <strong>CloudWatch</strong> alarms to ensure the entire infrastructure is secure, cost-optimized, and self-monitoring. 
+            </p>
+            <p style="margin-top: 15px;">
+                I am in the habit of measuring everything I build, and I am actively seeking full-time opportunities where I can help teams automate pipelines, manage cloud resources, and optimize infrastructure.
+            </p>
+        </div>
     </section>
 
     <section id="skills" class="bg-light section-padding">
@@ -77,25 +85,26 @@
                <div class="skill-category">
                     <h3>Cloud &amp; Infrastructure</h3>
                     <ul>
-                        <li>AWS (S3, CloudFront, Lambda, API Gateway, DynamoDB, Route 53, ACM, EC2, IAM, CloudWatch, SNS)</li>
-                        <li>Terraform (Infrastructure as Code)</li>
-                        <li>AWS CLI</li>
+                        <li><strong>AWS Services:</strong> S3, CloudFront, Route 53, ACM, Lambda, API Gateway, DynamoDB, CloudWatch, SNS, IAM, EC2, VPC</li>
+                        <li><strong>Infrastructure as Code (IaC):</strong> Terraform, AWS CLI</li>
+                        <li><strong>OS &amp; Scripting:</strong> Linux Systems Administration, Bash/Shell Scripting, Python</li>
                     </ul>
                 </div>
                 <div class="skill-category">
-                    <h3>Web Development</h3>
+                    <h3>Core DevOps &amp; Automation</h3>
                     <ul>
-                        <li>HTML, CSS, JavaScript</li>
-                        <li>Python (boto3, unit testing with unittest)</li>
-                        <li>WordPress &amp; WooCommerce</li>
+                        <li><strong>CI/CD Pipelines:</strong> GitHub Actions (OIDC Federated Authentication, Automated Unit Testing)</li>
+                        <li><strong>Version Control:</strong> Git, GitHub Workflows</li>
+                        <li><strong>Web Servers &amp; Networking:</strong> Nginx Reverse Proxy, Apache HTTP Server, TCP/IP Fundamentals</li>
                     </ul>
                 </div>
                 <div class="skill-category">
-                    <h3>Tools &amp; OS</h3>
+                    <h3>Active Building</h3>
                     <ul>
-                        <li>Git &amp; GitHub, GitHub Actions (CI/CD with OIDC)</li>
-                        <li>Linux / Bash Scripting</li>
-                        <li>Nginx &amp; Apache (load balancing, reverse proxy)</li>
+                        <li><strong>Containerization:</strong> Docker, Multi-Stage Builds</li>
+                        <li><strong>Orchestration:</strong> Kubernetes Cluster Management, Minikube</li>
+                        <li><strong>GitOps:</strong> ArgoCD Git-to-Cluster Desired State Synchronization</li>
+                        <li><strong>Observability:</strong> Prometheus Cluster Metrics Gathering, Grafana Dashboards</li>
                     </ul>
                 </div>
             </div>
@@ -105,30 +114,64 @@
     <section id="projects" class="container section-padding">
         <h2 class="section-title">Featured Projects</h2>
         <div class="projects-grid">
-
+            <!-- Project 1: Multi-Tier Containerized Deployment (NEW ACTIVE R&D) -->
             <div class="project-card">
-                <h3>Serverless Cloud Resume Challenge — with Full Observability</h3>
+                <h3>Multi-Tier Containerized Application Deployment</h3>
+                <p class="tech-stack">Docker | Kubernetes | ArgoCD | GitOps | Prometheus | Grafana</p>
+                <p style="font-size: 0.9rem; color: #555; margin-bottom: 10px;"><strong>Active Research &amp; Development (Scaler Academy Labs)</strong> | Target Completion: November 2026</p>
+                <ul>
+                    <li><strong>Six-gate secure PR pipeline</strong> — Flake8, pytest, Bandit SAST, Trivy (secrets + image CVEs), Hadolint — every gate a required status check; any failure blocks the merge.</li>
+                    <li><strong>Hardened image with scan-before-push release </strong> — slim base, non-root UID 10001, dev tooling excluded from the runtime image; matrix-builds three Python-versioned images, Trivy-scans each before push, publishes to GHCR only when clean.</li>
+                    <li><strong>GitOps without a protection bypass</strong>elease pipeline commits image tags to a dedicated gitops branch as the Actions bot; main stays locked (PR-only, required checks, force-push blocked, empty bypass list), so deployment state lives on its own branch instead of carving a hole in the ruleset.</li>
+                    <li><strong>Kubernetes footprint</strong> — authored; deployment in progress</strong>— three versioned Deployments behind one shared Service, 400Mi memory limit producing controlled OOMKills, restricted Pod Security, RBAC, NetworkPolicy, ResourceQuota, initContainers.</li>
+                    <li><strong>In progress</strong>  — ArgoCD reconciliation, Prometheus/Grafana dashboards, Loki for log aggregation, Grafana alert rules on OOMKilled and pod-unready events.</li>
+                </ul>
+                <div class="project-actions" style="margin-top: 20px;">
+                    <span class="btn btn-disabled" style="cursor: not-allowed; opacity: 0.7; pointer-events: none;"><i class="fa-solid fa-spinner fa-spin"></i> Build In Progress</span>
+                    <a href="https://github.com/02alfiya/DevOps-SRE" target="_blank" class="btn btn-outline">View Repository</a>
+                </div>
+            </div>
+
+            <!-- Project 2: Serverless Cloud Resume -->
+            <div class="project-card">
+                <h3>Serverless Cloud Portfolio</h3>
                 <p class="tech-stack">AWS S3 | CloudFront | Lambda | DynamoDB | API Gateway | Terraform | GitHub Actions | CloudWatch</p>
                 <ul>
-                    <li>Hosted on AWS with a private S3 origin behind CloudFront (Origin Access Control), Route 53 DNS, and HTTPS-only traffic — no public buckets, no servers.</li>
-                    <li>Real-time visitor counter: API Gateway → Python Lambda → DynamoDB, using atomic update expressions to prevent race conditions.</li>
-                    <li>Added a full observability layer: structured JSON logging, EMF custom metrics, a CloudWatch dashboard, and SNS email alarms (Lambda errors, DynamoDB throttles, API 5xx, and a $2 billing cap).</li>
-                    <li>Milestone alerts: every 100th visitor triggers a log entry, a custom metric, an email to me, and a 🎉 toast on their screen.</li>
-                    <li>CI/CD with GitHub Actions and OIDC — unit tests gate every backend deploy, and no AWS credentials are stored anywhere.</li>
-                    <li>All core infrastructure in Terraform; runs for under $1/month, enforced by a billing alarm.</li>
+                    <li>Hosted completely serverless on <strong>AWS</strong> using a private <strong>S3 bucket origin</strong> secured behind <strong>CloudFront</strong> with <strong>Origin Access Control (OAC)</strong>, <strong>Route 53 DNS</strong>, and HTTPS-only enforcement via <strong>ACM</strong>.</li>
+                    <li>Developed a real-time visitor counter using <strong>API Gateway</strong>, <strong>Python Lambda</strong>, and <strong>DynamoDB</strong>, implementing <strong>atomic update expressions</strong> to completely prevent concurrency race conditions.</li>
+                    <li>Automated deployments via <strong>GitHub Actions CI/CD</strong>, gating releases behind backend unit tests and utilizing <strong>OIDC federation</strong> to remove the need for long-lived AWS credentials.</li>
+                    <li>Engineered an observability pipeline featuring <strong>structured JSON logging</strong>, <strong>EMF custom metrics</strong>, a central <strong>CloudWatch dashboard</strong>, and <strong>SNS email alarms</strong>.</li>
+                    <li>Enforced cost safeguards by managing all infrastructure as code through <strong>Terraform</strong> and setting a strict <strong>1.00 USD billing alarm</strong>.</li>
                 </ul>
-                <div class="project-actions">
+
+                <!-- New Metrics Integration Sub-Card -->
+                <div class="metrics-subcard" style="margin-top: 20px; padding: 15px; background: var(--bg-light, #f8f9fa); border-left: 4px solid #0070f3; border-radius: 4px;">
+                    <h4 style="margin-top: 0; color: #333; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-chart-line" style="color: #0070f3;"></i> Performance &amp; Cost Metrics</h4>
+                    <ul style="margin: 0; padding-left: 20px; font-size: 0.95rem; line-height: 1.5;">
+                        <li><strong>Frontend Deployment Lead Time:</strong> 16 seconds average from code push to live global distribution (GitHub Actions to AWS CloudFront).</li>
+                        <li><strong>Backend Deployment Lead Time:</strong> 21.8 seconds average for automated unit testing, deployment, and live execution (GitHub Actions to AWS Lambda).</li>
+                        <li><strong>Infrastructure Provisioning:</strong> 26.3 seconds average to deploy the entire environment from scratch via Terraform.</li>
+                        <li><strong>Total Environmental Recovery:</strong> Under 20 minutes to rebuild the complete stack from an empty AWS account.</li>
+                        <li><strong>Monthly Run Cost:</strong> 0.59 USD total operating cost, monitored and controlled via custom CloudWatch billing alarms.</li>
+                        <li><strong>Monitoring Reliability:</strong> 100% notification delivery with 0 false alarms over a 30-day monitoring window.</li>
+                    </ul>
+                </div>
+
+                <div class="project-actions" style="margin-top: 20px;">
                     <a href="https://github.com/02alfiya/aws-cloud-resume" target="_blank" class="btn btn-outline">View Repository</a>
                     <a href="https://alfiyajaved.hashnode.dev" target="_blank" class="btn btn-outline">Read the Build Log</a>
                 </div>
             </div>
 
+            <!-- Project 3: Load-Balanced Network Architecture -->
             <div class="project-card">
                 <h3>Load-Balanced Network Architecture</h3>
-                <p class="tech-stack">AWS EC2 | Nginx | Apache</p>
+                <p class="tech-stack">AWS EC2 | Nginx | Apache | iptables</p>
                 <ul>
-                    <li>Designed a load-balanced architecture on AWS EC2, using Nginx as a reverse proxy across Nginx and Apache backend servers.</li>
-                    <li>Implemented IP blocking with iptables and rate limiting to reduce the risk of traffic abuse.</li>
+                    <li>Configured <strong>Nginx</strong> as a reverse proxy to distribute incoming HTTP requests across <strong>Nginx</strong> and <strong>Apache</strong> backend servers on <strong>AWS EC2</strong>.</li>
+                    <li>Implemented backend traffic distribution to reduce dependency on a single application server, enhancing availability and architecture redundancy.</li>
+                    <li>Applied IP-based filtering using <strong>iptables</strong> and Nginx rate limiting rules to restrict unauthorized traffic and reduce security abuse risks.</li>
+                    <li>Tested infrastructure failover behavior by stopping backend processes and verifying seamless traffic rerouting to the remaining active node with zero dropped requests.</li>
                 </ul>
                 <div class="project-actions">
                     <a href="https://github.com/02alfiya/Network_Project" target="_blank" class="btn btn-outline">View Repository</a>
@@ -138,26 +181,19 @@
         </div>
     </section>
 
-    <section id="experience" class="bg-light section-padding">
+    <section id="education" class="bg-light section-padding">
         <div class="container timeline-grid">
             <div class="timeline">
-                <h2 class="section-title">Experience</h2>
+                <h2 class="section-title">Education &amp; Training</h2>
                 <div class="timeline-item">
-                    <h3>Freelance Web Developer</h3>
-                    <p class="date">Early 2026</p>
-                    <p>Built and managed QadriMarket.com using WordPress and WooCommerce. Handled frontend design, bulk database management via CSV, performance optimization, and CDN integration.</p>
-                </div>
-            </div>
-            <div class="timeline">
-                <h2 class="section-title">Education</h2>
-                <div class="timeline-item">
-                    <h3>DevOps &amp; Cloud Computing</h3>
-                    <p class="date">Scaler</p>
-                    <p>Coursework focused on cloud infrastructure, automation, and modern deployment practices.</p>
+                    <h3>DevOps &amp; Cloud Computing (Active Coursework)</h3>
+                    <p class="date">Scaler Academy | Sep 2024 – Present</p>
+                    <p>Focusing on enterprise-level automation, cloud infrastructure design, and cloud-native application orchestration. Core modules cover <strong>Linux systems administration</strong>, <strong>infrastructure as code (Terraform)</strong>, <strong>containerization (Docker, Kubernetes)</strong>, <strong>GitOps delivery systems (ArgoCD)</strong>, and <strong>production-grade monitoring</strong>.</p>
                 </div>
                 <div class="timeline-item">
                     <h3>Bachelor of Computer Applications (BCA)</h3>
-                    <p class="date">Punyashlok Ahilyadevi Holkar Solapur University, 2024</p>
+                    <p class="date">Punyashlok Ahilyadevi Holkar Solapur University | Aug 2021 – Jun 2024</p>
+                    <p>Graduated with a major in Computer Science. Named <strong>3rd place rank holder</strong> in the BCA final-year academic program across Sangola College.</p>
                 </div>
             </div>
         </div>
